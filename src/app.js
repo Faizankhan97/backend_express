@@ -7,6 +7,10 @@ app.use("/test", (req, res) => {
   res.send("New Page from the Server");
 });
 
+app.use("/profile", (req, res) => {
+  res.send("This is Profile page!");
+});
+
 app.use("/", (req, res) => {
   res.send("Hello from the Server");
 });
