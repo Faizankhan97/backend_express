@@ -2,23 +2,25 @@ const express = require("express");
 
 const app = express();
 
-const { adminAuth, userAuth } = require("./middlewares/auth");
-
-// Handle Auth Middleware for all(use) requests GET POST
-// Handle Auth Middleware for only GET requests GET POST
-
-app.use("/admin", adminAuth);
-
-app.post("/user/login", (req, res) => {
-  res.send("User Logged in SuccessFully!");
+app.use("/", (err, req, res, next) => {
+  if (err) {
+    res.status(500).send("1st Internal Server Error");
+  }
 });
 
-app.get("/user", userAuth, (req, res) => {
-  res.send("User Data Sent");
-});
-
-app.get("/admin/getAllData", (req, res) => {
+app.get("/getAllData", (req, res) => {
+  //   try {
+  throw new Error("Something went wrong");
   res.send("All Data Sent");
+  //   } catch (error) {
+  // res.status(500).send("Some Error contact support team");
+  //   }
+});
+
+app.use("/", (err, req, res, next) => {
+  if (err) {
+    res.status(500).send("2nd Internal Server Error");
+  }
 });
 
 app.listen(3000, () => {
