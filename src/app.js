@@ -4,23 +4,18 @@ const User = require("./models/user");
 
 const app = express();
 
+app.use(express.json());
+
 app.post("/signup", async (req, res) => {
-  const userObj = {
-    firstName: "Aysha",
-    lastName: "Faizan",
-    emailId: "aysha@example.com",
-    password: "aysha123",
-  };
+  // Creating a new instance of the User model
+  const user = new User(req.body);
 
   try {
-    // Creating a new instance of the User model
-    const user = new User(userObj);
     await user.save();
+    res.send("User created successfully");
   } catch (error) {
     res.status(400).send(error.message, "Error in creating user");
   }
-
-  res.send("User created successfully");
 });
 
 connectDB()
