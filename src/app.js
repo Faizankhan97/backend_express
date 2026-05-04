@@ -43,13 +43,16 @@ app.post("/login", async (req, res) => {
     if (!user) {
       throw new Error("Invalid credentials");
     }
-    const isPaswordValid = await bcrypt.compare(password, user.password);
+    const isPaswordValid = await user.validatePasword(password);
 
     if (isPaswordValid) {
       //Create a JWT token and send it to the client
-      const token = await jwt.sign({ _id: user._id }, "DEV@Tinder&123");
+      const token = await user.getJWT();
       //Add the token to cookie and send it to the client
-      res.cookie("token", token, { httpOnly: true });
+      res.cookie("token", token, {
+        expires: new Date(Date.now() + 9000000000),
+        httpOnly: true,
+      });
       res.send("Login successful");
     } else {
       res.status(400).send("Invalid password");
@@ -69,68 +72,10 @@ app.get("/profile", userAuth, async (req, res) => {
   }
 });
 
-// Get user by email
-app.get("/user", async (req, res) => {
-  const email = req.body.emailId;
+app.post("/sendConnectionRequest", async (req, res) => {
+  console.log("Sending a conneection request");
 
-  try {
-    const user = await User.findById();
-    if (!user) {
-      res.status(404).send("User not Found");
-    }
-    res.send(user);
-    // if (user.length === 0) {
-    //   res.status(404).send("User not Found");
-    // }
-    // res.send(user);
-  } catch (error) {
-    res.status(400).send(error.message, "Something went wrong");
-  }
-});
-
-// Feed API - GET /feed - get all the users from the database
-app.get("/feed", async (req, res) => {
-  try {
-    const user = await User.find({});
-    res.send(user);
-  } catch (error) {
-    res.status(400).send(error.message, "Something went wrong");
-  }
-});
-
-// Delete a user from database
-app.delete("/user", async (req, res) => {
-  const userId = req.body.userId;
-  try {
-    await User.findByIdAndDelete(userId);
-    res.send("User deleted successfully");
-  } catch (error) {
-    res.status(400).send(error.message, "Something went wrong");
-  }
-});
-
-// Patch a user in the database
-app.patch("/user/:userId", async (req, res) => {
-  const userId = req.params?.userId;
-  const data = req.body;
-
-  try {
-    const ALLOWED_UPDATES = ["photoUrl", "about", "gender", "age", "skills"];
-
-    const isUpdateAllowed = Object.keys(data).every((update) =>
-      ALLOWED_UPDATES.includes(update),
-    );
-
-    if (!isUpdateAllowed) {
-      throw new Error("Updates not allowed");
-    }
-    await User.findByIdAndUpdate({ _id: userId }, data, {
-      runValidators: true,
-    });
-    res.send("User Updated successfully");
-  } catch (error) {
-    res.status(400).send(error.message, "Something went wrong");
-  }
+  res.send("connection request sent");
 });
 
 connectDB()
