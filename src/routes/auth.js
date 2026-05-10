@@ -31,9 +31,7 @@ authRouter.post("/signup", async (req, res) => {
 authRouter.post("/login", async (req, res) => {
   try {
     const { emailId, password } = req.body;
-
     const user = await User.findOne({ emailId: emailId });
-
     if (!user) {
       throw new Error("Invalid credentials");
     }
@@ -54,6 +52,13 @@ authRouter.post("/login", async (req, res) => {
   } catch (error) {
     res.status(400).send(error.message, "Error");
   }
+});
+
+authRouter.post("/logout", async (req, res) => {
+  res.cookie("token", null, {
+    expires: new Date(Date.now()),
+  });
+  res.send("logout successful");
 });
 
 module.exports = authRouter;
