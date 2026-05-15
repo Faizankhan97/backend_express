@@ -10,7 +10,7 @@ profileRouter.get("/profile/view", userAuth, async (req, res) => {
 
     res.send(user);
   } catch (error) {
-    res.status(400).send(error.message, "Error");
+    res.status(400).send(error.message);
   }
 });
 
@@ -25,7 +25,7 @@ profileRouter.patch("/profile/edit", userAuth, async (req, res) => {
 
     res.send("Profile updated successfully");
   } catch (error) {
-    res.status(400).send(error.message, "Error");
+    res.status(400).send(error.message);
   }
 });
 

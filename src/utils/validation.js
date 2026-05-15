@@ -1,9 +1,9 @@
 const validator = require("validator");
 
 const validateSignData = (req) => {
-  const { firstname, lastName, emailId, password } = req.body;
+  const { firstName, lastName, emailId, password } = req.body;
 
-  if (!firstname && !lastName) {
+  if (!firstName && !lastName) {
     throw new Error("First name and last name are required");
   } else if (!validator.isEmail(emailId)) {
     throw new Error("Invalid email address");

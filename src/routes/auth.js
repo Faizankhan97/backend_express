@@ -24,7 +24,7 @@ authRouter.post("/signup", async (req, res) => {
     await user.save();
     res.send("User created successfully");
   } catch (error) {
-    res.status(400).send(error.message, "Error");
+    res.status(400).send(error.message);
   }
 });
 
@@ -35,7 +35,7 @@ authRouter.post("/login", async (req, res) => {
     if (!user) {
       throw new Error("Invalid credentials");
     }
-    const isPaswordValid = await user.validatePasword(password);
+    const isPaswordValid = await user.validatePassword(password);
 
     if (isPaswordValid) {
       //Create a JWT token and send it to the client
@@ -50,7 +50,7 @@ authRouter.post("/login", async (req, res) => {
       res.status(400).send("Invalid password");
     }
   } catch (error) {
-    res.status(400).send(error.message, "Error");
+    res.status(400).send(error.message);
   }
 });
 
