@@ -1,18 +1,23 @@
 const express = require("express");
 const connectDB = require("./config/database");
 const cookiesParser = require("cookie-parser");
+const cors = require("cors");
 
 const app = express();
+
+app.use(cors());
 app.use(express.json());
 app.use(cookiesParser());
 
 const authRouter = require("./routes/auth");
 const profileRouter = require("./routes/profile");
 const requestsRouter = require("./routes/requests");
+const userRouter = require("./routes/user");
 
 app.use("/", authRouter);
 app.use("/", profileRouter);
 app.use("/", requestsRouter);
+app.use("/", userRouter);
 
 connectDB()
   .then(() => {

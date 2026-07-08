@@ -33,14 +33,8 @@ requestsRouter.post(
 
       const existingConnectionRequest = await ConnectionRequestModel.findOne({
         $or: [
-          {
-            fromUserId,
-            toUserId,
-          },
-          {
-            fromUserId: toUserId,
-            toUserId: fromUserId,
-          },
+          { fromUserId, toUserId },
+          { fromUserId: toUserId, toUserId: fromUserId },
         ],
       });
 
@@ -58,6 +52,41 @@ requestsRouter.post(
 
       const connectionRequestData = await connectionRequest.save();
       res.send(connectionRequestData);
+    } catch (error) {
+      res.status(400).send(error.message);
+    }
+  },
+);
+
+requestsRouter.post(
+  "/request/review/:status/:requestId",
+  userAuth,
+  async (req, res) => {
+    try {
+      const loggedInUser = req.user;
+      const { status, requestId } = req.params;
+
+      const allowedStatus = ["accepted", "rejected"];
+      if (!allowedStatus.includes(status)) {
+        return res
+          .status(400)
+          .json({ message: "Invalid status type" + status });
+      }
+
+      const connectionRequest = await ConnectionRequestModel.findOne({
+        _id: requestId,
+        toUserId: loggedInUser._id,
+        status: "interested",
+      });
+      if (!connectionRequest) {
+        return res
+          .status(400)
+          .json({ message: "Connection Request not found" });
+      }
+      connectionRequest.status = status;
+
+      const data = await connectionRequest.save();
+      res.json({ message: "Connection request " + status, data });
     } catch (error) {
       res.status(400).send(error.message);
     }
