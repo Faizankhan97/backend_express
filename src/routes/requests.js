@@ -5,6 +5,35 @@ const ConnectionRequestModel = require("../models/connectionRequest");
 
 const requestsRouter = express.Router();
 
+const handleReviewRequest = async (req, res) => {
+  try {
+    const loggedInUser = req.user;
+    const { status, requestId } = req.params;
+
+    const allowedStatus = ["accepted", "rejected"];
+    if (!allowedStatus.includes(status)) {
+      return res.status(400).json({ message: "Invalid status type " + status });
+    }
+
+    const connectionRequest = await ConnectionRequestModel.findOne({
+      _id: requestId,
+      toUserId: loggedInUser._id,
+      status: "interested",
+    });
+
+    if (!connectionRequest) {
+      return res.status(400).json({ message: "Connection Request not found" });
+    }
+
+    connectionRequest.status = status;
+
+    const data = await connectionRequest.save();
+    res.json({ message: "Connection request " + status, data });
+  } catch (error) {
+    res.status(400).send(error.message);
+  }
+};
+
 requestsRouter.post(
   "/request/send/:status/:toUserId",
   userAuth,
@@ -18,7 +47,7 @@ requestsRouter.post(
       if (!allowedStatus.includes(status)) {
         return res
           .status(400)
-          .send({ message: "Invalid status type" + status });
+          .send({ message: "Invalid status type " + status });
       }
 
       if (status === "ignored") {
@@ -58,39 +87,7 @@ requestsRouter.post(
   },
 );
 
-requestsRouter.post(
-  "/request/review/:status/:requestId",
-  userAuth,
-  async (req, res) => {
-    try {
-      const loggedInUser = req.user;
-      const { status, requestId } = req.params;
-
-      const allowedStatus = ["accepted", "rejected"];
-      if (!allowedStatus.includes(status)) {
-        return res
-          .status(400)
-          .json({ message: "Invalid status type" + status });
-      }
-
-      const connectionRequest = await ConnectionRequestModel.findOne({
-        _id: requestId,
-        toUserId: loggedInUser._id,
-        status: "interested",
-      });
-      if (!connectionRequest) {
-        return res
-          .status(400)
-          .json({ message: "Connection Request not found" });
-      }
-      connectionRequest.status = status;
-
-      const data = await connectionRequest.save();
-      res.json({ message: "Connection request " + status, data });
-    } catch (error) {
-      res.status(400).send(error.message);
-    }
-  },
-);
+requestsRouter.post("/request/review/:status/:requestId", userAuth, handleReviewRequest);
+requestsRouter.post("/user/requests/:status/:requestId", userAuth, handleReviewRequest);
 
 module.exports = requestsRouter;
