@@ -37,7 +37,7 @@ const userSchema = new mongoose.Schema(
     age: {
       type: String,
     },
-    number: {
+    phoneNumber: {
       type: String,
       validate(value) {
         if (!validator.isMobilePhone(value, "en-PK")) {

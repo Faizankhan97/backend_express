@@ -16,16 +16,23 @@ profileRouter.get("/profile/view", userAuth, async (req, res) => {
 
 profileRouter.patch("/profile/edit", userAuth, async (req, res) => {
   try {
-    if (!validateEditProfileData(req)) {
+    if (!req.body || Object.keys(req.body).length === 0) {
+      return res.status(400).send("No profile fields provided for update");
+    }
+
+    if (!validateEditProfileData(req.body)) {
       return res.status(400).send("Invalid edit fields");
     }
+
     const user = req.user;
-    Object.keys(req.body).forEach((key) => (user[key] = req.body[key]));
+    Object.keys(req.body).forEach((key) => {
+      user[key] = req.body[key];
+    });
     await user.save();
 
     res.send("Profile updated successfully");
   } catch (error) {
-    res.status(400).send(error?.response?.data);
+    res.status(400).send(error.message || "Unable to update profile");
   }
 });
 
